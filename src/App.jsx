@@ -47,27 +47,32 @@ function App() {
   const [ resultado, setResultado ] = useState({})
   const [ cargando, setCargando ] = useState(false)
 
-  useEffect(() => {
-      if(Object.keys(monedas).length > 0) {
+ useEffect(() => {
+    if(Object.keys(monedas).length > 0) {
+        
+      const cotizarCripto = async () => {
+          setCargando(true)
+          setResultado({})
+
+          const { moneda, criptomoneda } = monedas
+          const url = `/.netlify/functions/cotizar-cripto?criptomoneda=${criptomoneda}&moneda=${moneda}`
+
+          const respuesta = await fetch(url)
+          const resultado = await respuesta.json()
+
+          // Manejar la respuesta de Netlify Function
+          const datos = resultado.DISPLAY || (resultado.body ? JSON.parse(resultado.body).DISPLAY : null)
           
-        const cotizarCripto = async () => {
-            setCargando(true)
-            setResultado({})
+          if(datos) {
+              setResultado(datos[criptomoneda][moneda])
+          }
 
-            const { moneda, criptomoneda } = monedas
-            const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`
-
-            const respuesta = await fetch(url)
-            const resultado = await respuesta.json()
-
-            setResultado(resultado.DISPLAY[criptomoneda][moneda])
-
-            setCargando(false)
-        }
-
-        cotizarCripto()
+          setCargando(false)
       }
-  }, [monedas])
+
+      cotizarCripto()
+    }
+}, [monedas])
 
   return (
       <Contenedor>
