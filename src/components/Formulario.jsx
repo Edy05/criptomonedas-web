@@ -35,11 +35,18 @@ const Formulario = ({setMonedas}) => {
         const respuesta = await fetch(url)
         const resultado = await respuesta.json()
         
-        // Netlify Functions devuelve { statusCode, body }
-        // Necesitamos extraer y parsear el body
-        const datos = JSON.parse(resultado.body)
+        console.log('Respuesta completa:', resultado)
+        console.log('Body:', resultado.body)
 
-        const arrayCriptos = datos.Data.map( cripto => {
+        // Si resultado.Data existe, úsalo directamente
+        const datos = resultado.Data || (resultado.body ? JSON.parse(resultado.body) : null)
+        
+        if(!datos) {
+            console.error('No hay datos:', resultado)
+            return
+        }
+
+        const arrayCriptos = datos.map( cripto => {
             const objeto = {
                 id: cripto.CoinInfo.Name,
                 nombre: cripto.CoinInfo.FullName
