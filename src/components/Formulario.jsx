@@ -30,24 +30,27 @@ const Formulario = ({setMonedas}) => {
     const [ criptomoneda, SelectCriptomoneda ] = useSelectMonedas('Elige tu Criptomoneda', criptos)
 
     useEffect(() => {
-        const consultarAPI = async () => {
-            const url = "/.netlify/functions/get-cryptos"
-            const respuesta = await fetch(url)
-            const resultado = await respuesta.json()
+    const consultarAPI = async () => {
+        const url = "/.netlify/functions/get-cryptos"
+        const respuesta = await fetch(url)
+        const resultado = await respuesta.json()
+        
+        // Netlify Functions devuelve { statusCode, body }
+        // Necesitamos extraer y parsear el body
+        const datos = JSON.parse(resultado.body)
 
-            const arrayCriptos = resultado.Data.map( cripto => {
-                const objeto = {
-                    id: cripto.CoinInfo.Name,
-                    nombre: cripto.CoinInfo.FullName
-                }
-                return objeto
-            })
+        const arrayCriptos = datos.Data.map( cripto => {
+            const objeto = {
+                id: cripto.CoinInfo.Name,
+                nombre: cripto.CoinInfo.FullName
+            }
+            return objeto
+        })
 
-            setCriptos(arrayCriptos)
-
-        }
-        consultarAPI();
-    }, [])
+        setCriptos(arrayCriptos)
+    }
+    consultarAPI();
+}, [])
 
     const handleSubmit = e => {
         e.preventDefault()
