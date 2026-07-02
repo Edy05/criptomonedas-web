@@ -29,27 +29,19 @@ const Formulario = ({setMonedas}) => {
     const [ moneda, SelectMonedas ] = useSelectMonedas('Elige tu Moneda', monedas)
     const [ criptomoneda, SelectCriptomoneda ] = useSelectMonedas('Elige tu Criptomoneda', criptos)
 
-    useEffect(() => {
+   useEffect(() => {
     const consultarAPI = async () => {
         const url = "/.netlify/functions/get-cryptos"
         const respuesta = await fetch(url)
-        const resultado = await respuesta.json()
+        const criptos = await respuesta.json()
         
-        console.log('Respuesta completa:', resultado)
-        console.log('Body:', resultado.body)
-
-        // Si resultado.Data existe, úsalo directamente
-        const datos = resultado.Data || (resultado.body ? JSON.parse(resultado.body) : null)
+        console.log('Criptos recibidas:', criptos)
         
-        if(!datos) {
-            console.error('No hay datos:', resultado)
-            return
-        }
-
-        const arrayCriptos = datos.map( cripto => {
+        // CoinGecko devuelve el array directamente
+        const arrayCriptos = criptos.map( cripto => {
             const objeto = {
-                id: cripto.CoinInfo.Name,
-                nombre: cripto.CoinInfo.FullName
+                id: cripto.id,
+                nombre: cripto.name
             }
             return objeto
         })
