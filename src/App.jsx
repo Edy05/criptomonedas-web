@@ -47,7 +47,7 @@ function App() {
   const [ resultado, setResultado ] = useState({})
   const [ cargando, setCargando ] = useState(false)
 
- useEffect(() => {
+useEffect(() => {
     if(Object.keys(monedas).length > 0) {
         
       const cotizarCripto = async () => {
@@ -55,16 +55,42 @@ function App() {
           setResultado({})
 
           const { moneda, criptomoneda } = monedas
-          const url = `/.netlify/functions/cotizar-cripto?criptomoneda=${criptomoneda}&moneda=${moneda}`
+          const url = `/.netlify/functions/cotizar-criptos?criptomoneda=${criptomoneda}&moneda=${moneda}`
 
-          const respuesta = await fetch(url)
-          const resultado = await respuesta.json()
+          console.log('URL:', url)
+          console.log('Criptomoneda:', criptomoneda)
+          console.log('Moneda:', moneda)
 
-          // Manejar la respuesta de Netlify Function
-          const datos = resultado.DISPLAY || (resultado.body ? JSON.parse(resultado.body).DISPLAY : null)
-          
-          if(datos) {
-              setResultado(datos[criptomoneda][moneda])
+          try {
+              const respuesta = await fetch(url)
+              const resultado = await respuesta.json()
+
+              console.log('Respuesta completa:', resultado)
+
+              // Manejar la respuesta de Netlify Function
+              let datos = null
+              
+              if (resultado.DISPLAY) {
+                  datos = resultado.DISPLAY
+                  console.log('Datos directamente en DISPLAY')
+              } else if (resultado.body) {
+                  const parsed = JSON.parse(resultado.body)
+                  console.log('Body parseado:', parsed)
+                  datos = parsed.DISPLAY
+              }
+              
+              console.log('Datos:', datos)
+              
+              if(datos && datos[criptomoneda] && datos[criptomoneda][moneda]) {
+                  console.log('Resultado encontrado:', datos[criptomoneda][moneda])
+                  setResultado(datos[criptomoneda][moneda])
+              } else {
+                  console.error('No se encontraron datos para:', criptomoneda, moneda)
+                  console.error('Datos disponibles:', datos ? Object.keys(datos) : 'null')
+              }
+
+          } catch (error) {
+              console.error('Error en la cotización:', error)
           }
 
           setCargando(false)
